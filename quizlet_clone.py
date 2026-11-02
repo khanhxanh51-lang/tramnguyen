@@ -115,7 +115,6 @@ with top_c1:
 with top_c2:
   vocab_list = batches[selected_batch]
 
-  # Khởi tạo session state lưu tiến độ và lịch sử đánh giá của Set hiện tại
   if (
       "current_idx" not in st.session_state
       or "last_batch" not in st.session_state
@@ -124,9 +123,7 @@ with top_c2:
     st.session_state.current_idx = 0
     st.session_state.last_batch = selected_batch
     st.session_state.flipped = False
-    st.session_state.history = (
-        {}
-    )  # Lưu từ vựng kèm kết quả đánh giá: {word: level}
+    st.session_state.history = {}  # Lưu trạng thái đánh giá của từng từ
     st.session_state.show_summary = False
 
   current_num = st.session_state.current_idx + 1
@@ -147,7 +144,7 @@ with top_c2:
 
 st.markdown("<hr style='border-color: #2d2d44;'>", unsafe_allow_html=True)
 
-# KIỂM TRA XEM ĐÃ HOÀN THÀNH SET CHƯA HOẶC BẤM XEM TỔNG KẾT
+# KIỂM TRA TRẠNG THÁI HIỂN THỊ BẢNG TỔNG KẾT
 if st.session_state.show_summary:
   st.markdown(
       "<h2 style='text-align: center; color: #29b6f6;'>📊 Bảng Tổng Kết Kết"
@@ -155,21 +152,26 @@ if st.session_state.show_summary:
       unsafe_allow_html=True,
   )
   st.markdown(
-      f"<p style='text-align: center; color: #aaa;'>Phần học: <b>{selected_batch}</b> | Đã hoàn thành {len(st.session_state.history)} / {total_num} từ</p>",
+      f"<p style='text-align: center; color: #aaa;'>Phần học: <b>{selected_batch}</b></p>",
       unsafe_allow_html=True,
   )
 
-  # Hiển thị bảng chi tiết các từ đã học và mức độ đánh giá
+  # Tự động gán nhãn "Bỏ qua" cho các từ chưa được đánh giá trước khi hiện tổng kết
+  for w, _ in vocab_list:
+    if w not in st.session_state.history:
+      st.session_state.history[w] = "Bỏ qua"
+
+  # Hiển thị danh sách chi tiết từng từ
   if st.session_state.history:
     st.markdown("---")
     for idx, (w, d) in enumerate(vocab_list):
-      status = st.session_state.history.get(w, "Chưa đánh giá")
-      # Đổi màu sắc badge theo mức độ
+      status = st.session_state.history.get(w, "Bỏ qua")
       color_map = {
           "Xem lại": "#ff4d4d",
           "Khó": "#ffa500",
           "Ổn": "#29b6f6",
           "Dễ": "#4CAF50",
+          "Bỏ qua": "#777777",
       }
       badge_color = color_map.get(status, "#777")
       st.markdown(
@@ -197,15 +199,14 @@ if st.session_state.show_summary:
       st.session_state.show_summary = False
       st.rerun()
   with col_sum2:
-    if st.button("🔙 Tiếp tục ôn tập", use_container_width=True):
+    if st.button("🔙 Tiếp tục xem lại thẻ", use_container_width=True):
       st.session_state.show_summary = False
       st.rerun()
 
 else:
-  # GIAO DIỆN HỌC THÔNG THƯỜNG TỪNG THẺ
+  # GIAO DIỆN HỌC THÔNG THƯỜNG
   word, definition = vocab_list[st.session_state.current_idx]
 
-  # Hiển thị thẻ Flashcard
   if not st.session_state.flipped:
     st.markdown(
         f"""
@@ -228,48 +229,58 @@ else:
         unsafe_allow_html=True,
     )
 
-  # Nút bấm lật hoặc đánh giá
+
+  def go_next():
+    # Nếu chuyển đi mà chưa đánh giá -> ghi nhận là "Bỏ qua"
+    if word not in st.session_state.history:
+      st.session_state.history[word] = "Bỏ qua"
+
+    if st.session_state.current_idx < total_num - 1:
+      st.session_state.current_idx += 1
+      st.session_state.flipped = False
+    else:
+      st.session_state.show_summary = True
+    st.rerun()
+
+
+  def go_prev():
+    if st.session_state.current_idx > 0:
+      st.session_state.current_idx -= 1
+      st.session_state.flipped = False
+      st.rerun()
+
+
   if not st.session_state.flipped:
     if st.button("LẬT XEM ĐỊNH NGHĨA", use_container_width=True, type="primary"):
       st.session_state.flipped = True
       st.rerun()
 
-    # Nút phụ chuyển qua lại khi chưa lật
     nav_c1, nav_c2 = st.columns(2)
     with nav_c1:
       if st.button("⬅️ Từ trước", use_container_width=True):
-        st.session_state.current_idx = (
-            st.session_state.current_idx - 1
-        ) % total_num
-        st.session_state.flipped = False
-        st.rerun()
+        go_prev()
     with nav_c2:
-      if st.button("Từ tiếp ➡️", use_container_width=True):
-        st.session_state.current_idx = (
-            st.session_state.current_idx + 1
-        ) % total_num
-        st.session_state.flipped = False
-        st.rerun()
-
+      if st.button("Từ tiếp ➡️ (Bỏ qua)", use_container_width=True):
+        go_next()
   else:
     st.markdown(
         "<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom:"
         " 5px;'>Đánh giá mức độ ghi nhớ của từ này:</p>",
         unsafe_allow_html=True,
     )
-    c1, c2, c3, c4 = st.columns(4)
 
-    # Hàm xử lý khi chọn đánh giá -> lưu lại kết quả và tự động chuyển sang từ tiếp theo
+
     def save_and_next(level):
       st.session_state.history[word] = level
       if st.session_state.current_idx < total_num - 1:
         st.session_state.current_idx += 1
         st.session_state.flipped = False
       else:
-        # Nếu đã đến từ cuối cùng, bật bảng tổng kết kết quả
         st.session_state.show_summary = True
       st.rerun()
 
+
+    c1, c2, c3, c4 = st.columns(4)
     with c1:
       if st.button("Xem lại", use_container_width=True):
         save_and_next("Xem lại")
@@ -300,15 +311,10 @@ else:
         unsafe_allow_html=True,
     )
 
-    # Nút phụ xem kết quả tổng kết ngay lập tức hoặc xem lại từ trước
     sub_c1, sub_c2 = st.columns(2)
     with sub_c1:
       if st.button("⬅️ Từ trước", use_container_width=True):
-        st.session_state.current_idx = (
-            st.session_state.current_idx - 1
-        ) % total_num
-        st.session_state.flipped = False
-        st.rerun()
+        go_prev()
     with sub_c2:
       if st.button("📊 Xem tổng kết điểm", use_container_width=True):
         st.session_state.show_summary = True
