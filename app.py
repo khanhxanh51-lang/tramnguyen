@@ -17,7 +17,6 @@ st.markdown(
     }
     header {visibility: hidden;}
     
-    /* Khung thẻ Flashcard y hệt bản desktop */
     .desktop-card {
         background-color: #1e1e2f;
         border: 1px solid #2d2d44;
@@ -61,21 +60,25 @@ st.markdown(
 )
 
 
-# Đọc file vocabulary.csv từ GitHub với cơ chế tìm đường dẫn linh hoạt
+# Đọc file vocabulary.csv an toàn, tránh sập app do lỗi định dạng dòng
 @st.cache_data
 def load_vocab():
   possible_paths = ["vocabulary.csv", "./vocabulary.csv", "data/vocabulary.csv"]
-  df = None
   for path in possible_paths:
     if os.path.exists(path):
       try:
-        df = pd.read_csv(path, header=None, names=["Word", "Definition"])
-        break
+        # Dùng on_bad_lines='skip' để tự động bỏ qua dòng lỗi định dạng trong csv
+        df = pd.read_csv(
+            path,
+            header=None,
+            names=["Word", "Definition"],
+            on_bad_lines="skip",
+        )
+        df = df.dropna()
+        if not df.empty:
+          return df.values.tolist()
       except Exception:
         pass
-  if df is not None:
-    df = df.dropna()
-    return df.values.tolist()
   return []
 
 
@@ -83,12 +86,11 @@ all_words = load_vocab()
 
 if not all_words:
   st.error(
-      "⚠️ Không tìm thấy file `vocabulary.csv`! T hãy chắc chắn là file"
-      " `vocabulary.csv` đã được đẩy lên **cùng thư mục gốc** với file `app.py`"
-      " trên GitHub nhé."
+      "⚠️ Không đọc được dữ liệu từ file `vocabulary.csv`! T hãy kiểm tra lại"
+      " định dạng bên trong file CSV nhé."
   )
 else:
-  # Chia tự động thành các phần (mỗi phần 20 từ y hệt ảnh)
+  # Chia tự động thành các phần (mỗi phần 20 từ)
   chunk_size = 20
   batches = {}
   total_sets = math.ceil(len(all_words) / chunk_size)
