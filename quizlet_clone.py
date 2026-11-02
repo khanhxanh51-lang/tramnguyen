@@ -1,4 +1,5 @@
 import math
+import os
 import pandas as pd
 import streamlit as st
 
@@ -60,25 +61,31 @@ st.markdown(
 )
 
 
-# Đọc file vocabulary.csv từ GitHub
+# Đọc file vocabulary.csv từ GitHub với cơ chế tìm đường dẫn linh hoạt
 @st.cache_data
 def load_vocab():
-  try:
-    df = pd.read_csv(
-        "vocabulary.csv", header=None, names=["Word", "Definition"]
-    )
+  possible_paths = ["vocabulary.csv", "./vocabulary.csv", "data/vocabulary.csv"]
+  df = None
+  for path in possible_paths:
+    if os.path.exists(path):
+      try:
+        df = pd.read_csv(path, header=None, names=["Word", "Definition"])
+        break
+      except Exception:
+        pass
+  if df is not None:
     df = df.dropna()
     return df.values.tolist()
-  except Exception:
-    return []
+  return []
 
 
 all_words = load_vocab()
 
 if not all_words:
   st.error(
-      "⚠️ Không tìm thấy file `vocabulary.csv` trên GitHub. T kiểm tra lại file"
-      " nhé!"
+      "⚠️ Không tìm thấy file `vocabulary.csv`! T hãy chắc chắn là file"
+      " `vocabulary.csv` đã được đẩy lên **cùng thư mục gốc** với file `app.py`"
+      " trên GitHub nhé."
   )
 else:
   # Chia tự động thành các phần (mỗi phần 20 từ y hệt ảnh)
@@ -100,7 +107,6 @@ else:
     )
   with top_c2:
     vocab_list = batches[selected_batch]
-    # Session state
     if (
         "current_idx" not in st.session_state
         or "last_batch" not in st.session_state
@@ -153,7 +159,6 @@ else:
       st.session_state.flipped = True
       st.rerun()
   else:
-    # Nút điều hướng chuyển từ sau khi đã lật
     col_prev, col_next = st.columns(2)
     with col_prev:
       if st.button("⬅️ Từ trước", use_container_width=True):
