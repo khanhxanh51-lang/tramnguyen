@@ -1,9 +1,10 @@
-import random
 import streamlit as st
 
 # Cấu hình trang web
 st.set_page_config(
-    page_title="IELTS Vocabulary Quizlet", page_icon="📚", layout="centered"
+    page_title="IELTS Vocabulary - Phân Lô 20 Từ",
+    page_icon="📚",
+    layout="centered",
 )
 
 # Custom CSS giao diện Flashcard
@@ -30,11 +31,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("📚 Ôn Tập Từ Vựng IELTS - Phân Lô 20 Từ")
-st.markdown("Hệ thống flashcard chuẩn Anh - Anh, chia lô rõ ràng và có chấm điểm.")
+st.title("📚 Ôn Tập Từ Vựng IELTS - Theo Từng Lô")
+st.markdown("Hệ thống flashcard chia đúng 20 từ mỗi lô, ôn tập cực kỳ cô đọng.")
 st.markdown("---")
 
-# Toàn bộ dữ liệu các lô từ vựng (chính xác 20 từ/lô đã tích lũy)
+# Toàn bộ danh sách các lô (mỗi lô đúng 20 từ)
 batches = {
     "Lô 18 (G, H, I, J, K...)": [
         ("gainsay", "(v.) deny or contradict a fact or statement."),
@@ -108,7 +109,7 @@ batches = {
             "(adj.) assuming power or authority without justification; arrogant.",
         ),
         ("impetuous", "(adj.) acting or done quickly and without thought."),
-        ("impudent", "(adj.) not showing due respect; impertinent."),
+        ("impudent", "(adj.) not showing due respect for another person."),
         (
             "inchoate",
             "(adj.) just begun and so not fully formed or developed.",
@@ -389,7 +390,8 @@ batches = {
         ),
         ("gargantuan", "(adj.) enormous; gigantic."),
         ("hedonistic", "(adj.) engaged in the pursuit of pleasure."),
-        ("ignoble", "(adj.) not honorable in character or purpose."),
+        ("ignoble", "(adj.) not honorable in character or purpose.",
+        ),
         ("jejune", "(adj.) naive, simplistic, and superficial."),
         ("kinetic", "(adj.) relating to or resulting from motion."),
         (
@@ -419,13 +421,13 @@ batches = {
     ],
 }
 
-# Chọn lô từ vựng từ menu thả xuống
+# Chọn đúng lô để ôn tập
 selected_batch = st.selectbox(
-    "📂 Chọn lô từ vựng muốn ôn tập:", list(batches.keys())
+    "📂 Chọn đúng Lô từ vựng (mỗi lô 20 từ chuẩn):", list(batches.keys())
 )
 vocab_list = batches[selected_batch]
 
-# Khởi tạo trạng thái phiên làm việc
+# Khởi tạo trạng thái phiên làm việc theo từng lô riêng biệt
 if (
     "current_idx" not in st.session_state
     or "last_batch" not in st.session_state
@@ -440,24 +442,24 @@ if st.session_state.current_idx >= len(vocab_list):
 
 word, definition = vocab_list[st.session_state.current_idx]
 
-# Hiển thị vị trí từ trong lô
+# Hiển thị vị trí từ trong lô hiện tại
 st.caption(
-    f"Thẻ từ: **{st.session_state.current_idx + 1} / {len(vocab_list)}** trong"
-    f" **{selected_batch}**"
+    f"Đang học: **{selected_batch}** | Thẻ từ số:"
+    f" **{st.session_state.current_idx + 1} / {len(vocab_list)}**"
 )
 
-# Khung thẻ từ vựng nổi bật
+# Khung thẻ từ vựng lớn
 st.markdown(
     f"""
     <div class="vocab-card">
-        <div style="font-size: 13px; color: #888; margin-bottom: 5px; text-transform: uppercase;">IELTS Vocabulary Flashcard</div>
+        <div style="font-size: 13px; color: #888; margin-bottom: 5px; text-transform: uppercase;">IELTS Flashcard</div>
         <div class="vocab-word">{word}</div>
     </div>
 """,
     unsafe_allow_html=True,
 )
 
-# Hiển thị định nghĩa khi bấm lật
+# Hiển thị định nghĩa khi lật
 if st.session_state.show_def:
   st.markdown(
       f"""
@@ -469,7 +471,7 @@ if st.session_state.show_def:
       unsafe_allow_html=True,
   )
 
-# Hàng nút điều hướng chính
+# Hàng nút điều hướng (Trước / Lật nghĩa / Tiếp theo)
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -500,14 +502,17 @@ with col3:
     st.session_state.show_def = False
     st.rerun()
 
-# Bổ sung các nút đánh giá mức độ (Dễ / Khó - Phong cách Quizlet)
+# Nút đánh giá mức độ (Chưa thuộc / Đã thuộc) hiện ra ngay sau khi lật nghĩa
 if st.session_state.show_def:
   st.markdown("---")
-  st.markdown("<p style='text-align: center;'>Đánh giá mức độ từ này:</p>", unsafe_allow_html=True)
+  st.markdown(
+      "<p style='text-align: center; font-weight: bold; color: #555;'>Đánh giá"
+      " từ này của tớ:</p>",
+      unsafe_allow_html=True,
+  )
   d_col1, d_col2 = st.columns(2)
   with d_col1:
     if st.button("🔴 Chưa thuộc (Khó)", use_container_width=True):
-      # Giữ nguyên hoặc chuyển tiếp ngẫu nhiên/tiếp theo tùy ý
       st.session_state.current_idx = (
           st.session_state.current_idx + 1
       ) % len(vocab_list)
