@@ -38,9 +38,9 @@ st.markdown(
 )
 st.markdown("---")
 
-# Danh sách phân chia theo các Set chuẩn chỉnh
+# Danh sách phân chia theo các Set bắt đầu từ Set 1
 batches = {
-    "Set 18 (G, H, I, J, K...)": [
+    "Set 1 (G, H, I, J, K...)": [
         ("gainsay", "(v.) deny or contradict a fact or statement."),
         ("galvanize", "(v.) shock or excite someone into taking action."),
         (
@@ -87,7 +87,7 @@ batches = {
             "(n.) a person who attacks cherished beliefs or institutions.",
         ),
     ],
-    "Set 19 (I, J, K, L, M...)": [
+    "Set 2 (I, J, K, L, M...)": [
         (
             "idiosyncrasy",
             "(n.) a mode of behaviour or way of thought peculiar to an individual.",
@@ -130,7 +130,7 @@ batches = {
         ("innocuous", "(adj.) not harmful or offensive."),
         ("insipid", "(adj.) lacking flavor; lacking vigor or interest."),
     ],
-    "Set 20 (M, N, O, P)": [
+    "Set 3 (M, N, O, P)": [
         (
             "malediction",
             (
@@ -197,7 +197,7 @@ batches = {
             "(n.) a person or thing regarded as a perfect example of quality.",
         ),
     ],
-    "Set 21 (P, Q, R, S)": [
+    "Set 4 (P, Q, R, S)": [
         (
             "parsimonious",
             "(adj.) unwilling to spend money or use resources; stingy.",
@@ -255,7 +255,7 @@ batches = {
             "(v.) put an end to a rebellion or disorder, typically by force.",
         ),
     ],
-    "Set 22 (R, S, T, U, V)": [
+    "Set 5 (R, S, T, U, V)": [
         (
             "recalcitrant",
             "(adj.) having an uncooperative attitude toward authority.",
@@ -290,12 +290,9 @@ batches = {
             "surreptitious",
             "(adj.) kept secret, especially because it would not be approved.",
         ),
-        (
-            "sycophant",
-            "(n.) a person who acts obsequiously toward someone to gain advantage.",
-        ),
+        ("sycophant", "(n.) a person acting obsequiously to gain advantage."),
     ],
-    "Set 23 (T, U, V, W, Z)": [
+    "Set 6 (T, U, V, W, Z)": [
         (
             "taciturn",
             "(adj.) reserved or uncommunicative in speech; saying little.",
@@ -332,7 +329,7 @@ batches = {
         ("wanton", "(adj.) deliberate and unprovoked (of cruel action)."),
         ("zealot", "(n.) a person fanatical and uncompromising in ideals."),
     ],
-    "Set 24 (Tổng hợp A-Z - Lần 1)": [
+    "Set 7 (Tổng hợp A-Z - Lần 1)": [
         ("alacrity", "(n.) brisk and cheerful readiness."),
         ("cacophony", "(n.) a harsh, discordant mixture of sounds."),
         (
@@ -375,7 +372,7 @@ batches = {
         ("taciturn", "(adj.) reserved or uncommunicative in speech."),
         ("ubiquitous", "(adj.) present, appearing, or found everywhere."),
     ],
-    "Set 25 (Tổng hợp A-Z - Lần 2)": [
+    "Set 8 (Tổng hợp A-Z - Lần 2)": [
         (
             "acerbic",
             "(adj.) sharp and forthright; expressing harsh or sharp criticism.",
@@ -412,10 +409,7 @@ batches = {
             "recalcitrant",
             "(adj.) having an uncooperative attitude toward authority.",
         ),
-        (
-            "sycophant",
-            "(n.) a person who acts obsequiously toward someone important.",
-        ),
+        ("sycophant", "(n.) a person acting obsequiously to gain advantage."),
         (
             "truculent",
             "(adj.) eager or quick to argue or fight; aggressively defiant.",
