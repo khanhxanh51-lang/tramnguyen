@@ -107,10 +107,10 @@ for i in range(total_sets):
   batches[set_name] = all_words[start_idx:end_idx]
 
 # Top bar: Chọn phần học & số đếm thẻ
-top_c1, top_c2, top_c3 = st.columns([2.5, 1, 0.8])
+top_c1, top_c2 = st.columns([2.5, 1])
 with top_c1:
   selected_batch = st.selectbox(
-      "☰ Chọn phần học từ vựng", list(batches.keys()), label_visibility="collapsed"
+      "☰ Chọn phần học từ vựng", list(batches.keys())
   )
 with top_c2:
   vocab_list = batches[selected_batch]
@@ -134,18 +134,11 @@ with top_c2:
       unsafe_allow_html=True,
   )
 
-with top_c3:
-  # Nút làm lại từ đầu bộ học
-  if st.button("🔄 Làm lại", use_container_width=True):
-    st.session_state.current_idx = 0
-    st.session_state.flipped = False
-    st.rerun()
-
 st.markdown("<hr style='border-color: #2d2d44;'>", unsafe_allow_html=True)
 
 word, definition = vocab_list[st.session_state.current_idx]
 
-# Khu vực thẻ Flashcard
+# Khu vực hiển thị thẻ Flashcard (Mặt trước / Mặt sau)
 if not st.session_state.flipped:
   st.markdown(
       f"""
@@ -168,12 +161,40 @@ else:
       unsafe_allow_html=True,
   )
 
-# Điều khiển: Nếu chưa lật thì hiện nút Lật. Nếu đã lật thì hiện 4 nút đánh giá chuẩn Anki/Quizlet[cite: 1, 2]
+# LOGIC NÚT BẤM:
+# 1. Nếu chưa lật: Chỉ hiện nút "LẬT XEM ĐỊNH NGHĨA" và nút lùi/tiến đơn giản.
+# 2. Nếu đã lật: Ẩn nút lật đi, hiện đầy đủ 4 nút đánh giá (Xem lại, Khó, Ổn, Dễ) hoặc nút "Từ trước / Từ tiếp".
+
 if not st.session_state.flipped:
+  # Nút lật to bản chính giữa
   if st.button("LẬT XEM ĐỊNH NGHĨA", use_container_width=True, type="primary"):
     st.session_state.flipped = True
     st.rerun()
+
+  # Hàng phụ cho phép bấm chuyển qua lại ngay cả khi chưa lật nếu muốn
+  nav_c1, nav_c2 = st.columns(2)
+  with nav_c1:
+    if st.button("⬅️ Từ trước", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx - 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+  with nav_c2:
+    if st.button("Từ tiếp ➡️", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx + 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+
 else:
+  # Khi đã lật ra nghĩa -> Hiện các nút đánh giá mức độ
+  st.markdown(
+      "<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom:"
+      " 5px;'>Đánh giá mức độ ghi nhớ của từ này:</p>",
+      unsafe_allow_html=True,
+  )
   c1, c2, c3, c4 = st.columns(4)
 
   with c1:
@@ -205,7 +226,6 @@ else:
       st.session_state.flipped = False
       st.rerun()
 
-  # Gợi ý thời gian ôn tập dưới các nút[cite: 1, 2]
   st.markdown(
       """
       <table style="width: 100%; text-align: center; color: #888; font-size: 11px; margin-top: 5px;">
@@ -219,3 +239,18 @@ else:
   """,
       unsafe_allow_html=True,
   )
+
+  # Thêm hàng nút phụ bên dưới để quay lại từ trước hoặc làm lại từ đầu bộ học
+  sub_c1, sub_c2 = st.columns(2)
+  with sub_c1:
+    if st.button("⬅️ Xem lại từ trước", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx - 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+  with sub_c2:
+    if st.button("🔄 Làm lại từ đầu phần này", use_container_width=True):
+      st.session_state.current_idx = 0
+      st.session_state.flipped = False
+      st.rerun()
