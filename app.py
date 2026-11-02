@@ -1,6 +1,5 @@
 import math
 import os
-import pandas as pd
 import streamlit as st
 
 # Cấu hình trang giao diện tối màu chuẩn app desktop
@@ -60,34 +59,41 @@ st.markdown(
 )
 
 
-# Đọc file vocabulary.csv an toàn, tránh sập app do lỗi định dạng dòng
+# Đọc file vocabulary.csv trực tiếp bằng Python thuần, không cần pandas, tránh tuyệt đối lỗi sập app
 @st.cache_data
 def load_vocab():
+  words = []
   possible_paths = ["vocabulary.csv", "./vocabulary.csv", "data/vocabulary.csv"]
-  for path in possible_paths:
-    if os.path.exists(path):
-      try:
-        # Dùng on_bad_lines='skip' để tự động bỏ qua dòng lỗi định dạng trong csv
-        df = pd.read_csv(
-            path,
-            header=None,
-            names=["Word", "Definition"],
-            on_bad_lines="skip",
-        )
-        df = df.dropna()
-        if not df.empty:
-          return df.values.tolist()
-      except Exception:
-        pass
-  return []
+  path_found = None
+  for p in possible_paths:
+    if os.path.exists(p):
+      path_found = p
+      break
+
+  if path_found:
+    try:
+      with open(path_found, "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+          line = line.strip()
+          if not line:
+            continue
+          # Tách cột dựa vào dấu phẩy đầu tiên
+          parts = line.split(",", 1)
+          if len(parts) == 2:
+            word = parts[0].strip().strip('"').strip("'")
+            definition = parts[1].strip().strip('"').strip("'")
+            words.append((word, definition))
+    except Exception:
+      pass
+  return words
 
 
 all_words = load_vocab()
 
 if not all_words:
   st.error(
-      "⚠️ Không đọc được dữ liệu từ file `vocabulary.csv`! T hãy kiểm tra lại"
-      " định dạng bên trong file CSV nhé."
+      "⚠️ Không đọc được dữ liệu từ file `vocabulary.csv`. Hãy kiểm tra lại file"
+      " trên GitHub nhé!"
   )
 else:
   # Chia tự động thành các phần (mỗi phần 20 từ)
@@ -175,4 +181,4 @@ else:
             st.session_state.current_idx + 1
         ) % total_num
         st.session_state.flipped = False
-        st.rerun()
+        st.rerun()s
