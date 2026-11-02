@@ -2,7 +2,7 @@ import streamlit as st
 
 # Cấu hình trang web
 st.set_page_config(
-    page_title="IELTS Vocabulary - Phân Lô 20 Từ",
+    page_title="IELTS Vocabulary - Flashcard Sets",
     page_icon="📚",
     layout="centered",
 )
@@ -31,13 +31,16 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("📚 Ôn Tập Từ Vựng IELTS - Theo Từng Lô")
-st.markdown("Hệ thống flashcard chia đúng 20 từ mỗi lô, ôn tập cực kỳ cô đọng.")
+st.title("📚 Ôn Tập Từ Vựng IELTS - Flashcard Sets")
+st.markdown(
+    "Hệ thống flashcard chia thành các Set 20 từ chuẩn Anh - Anh, ôn tập trực"
+    " quan."
+)
 st.markdown("---")
 
-# Toàn bộ danh sách các lô (mỗi lô đúng 20 từ)
+# Danh sách phân chia theo các Set chuẩn chỉnh
 batches = {
-    "Lô 18 (G, H, I, J, K...)": [
+    "Set 18 (G, H, I, J, K...)": [
         ("gainsay", "(v.) deny or contradict a fact or statement."),
         ("galvanize", "(v.) shock or excite someone into taking action."),
         (
@@ -84,7 +87,7 @@ batches = {
             "(n.) a person who attacks cherished beliefs or institutions.",
         ),
     ],
-    "Lô 19 (I, J, K, L, M...)": [
+    "Set 19 (I, J, K, L, M...)": [
         (
             "idiosyncrasy",
             "(n.) a mode of behaviour or way of thought peculiar to an individual.",
@@ -127,7 +130,7 @@ batches = {
         ("innocuous", "(adj.) not harmful or offensive."),
         ("insipid", "(adj.) lacking flavor; lacking vigor or interest."),
     ],
-    "Lô 20 (M, N, O, P)": [
+    "Set 20 (M, N, O, P)": [
         (
             "malediction",
             (
@@ -194,7 +197,7 @@ batches = {
             "(n.) a person or thing regarded as a perfect example of quality.",
         ),
     ],
-    "Lô 21 (P, Q, R, S)": [
+    "Set 21 (P, Q, R, S)": [
         (
             "parsimonious",
             "(adj.) unwilling to spend money or use resources; stingy.",
@@ -252,7 +255,7 @@ batches = {
             "(v.) put an end to a rebellion or disorder, typically by force.",
         ),
     ],
-    "Lô 22 (R, S, T, U, V)": [
+    "Set 22 (R, S, T, U, V)": [
         (
             "recalcitrant",
             "(adj.) having an uncooperative attitude toward authority.",
@@ -292,7 +295,7 @@ batches = {
             "(n.) a person who acts obsequiously toward someone to gain advantage.",
         ),
     ],
-    "Lô 23 (T, U, V, W, Z)": [
+    "Set 23 (T, U, V, W, Z)": [
         (
             "taciturn",
             "(adj.) reserved or uncommunicative in speech; saying little.",
@@ -329,7 +332,7 @@ batches = {
         ("wanton", "(adj.) deliberate and unprovoked (of cruel action)."),
         ("zealot", "(n.) a person fanatical and uncompromising in ideals."),
     ],
-    "Lô 24 (Tổng hợp A-Z - Lần 1)": [
+    "Set 24 (Tổng hợp A-Z - Lần 1)": [
         ("alacrity", "(n.) brisk and cheerful readiness."),
         ("cacophony", "(n.) a harsh, discordant mixture of sounds."),
         (
@@ -372,7 +375,7 @@ batches = {
         ("taciturn", "(adj.) reserved or uncommunicative in speech."),
         ("ubiquitous", "(adj.) present, appearing, or found everywhere."),
     ],
-    "Lô 25 (Tổng hợp A-Z - Lần 2)": [
+    "Set 25 (Tổng hợp A-Z - Lần 2)": [
         (
             "acerbic",
             "(adj.) sharp and forthright; expressing harsh or sharp criticism.",
@@ -390,8 +393,7 @@ batches = {
         ),
         ("gargantuan", "(adj.) enormous; gigantic."),
         ("hedonistic", "(adj.) engaged in the pursuit of pleasure."),
-        ("ignoble", "(adj.) not honorable in character or purpose.",
-        ),
+        ("ignoble", "(adj.) not honorable in character or purpose."),
         ("jejune", "(adj.) naive, simplistic, and superficial."),
         ("kinetic", "(adj.) relating to or resulting from motion."),
         (
@@ -421,13 +423,13 @@ batches = {
     ],
 }
 
-# Chọn đúng lô để ôn tập
+# Chọn Set từ vựng
 selected_batch = st.selectbox(
-    "📂 Chọn đúng Lô từ vựng (mỗi lô 20 từ chuẩn):", list(batches.keys())
+    "📂 Chọn Flashcard Set muốn ôn tập:", list(batches.keys())
 )
 vocab_list = batches[selected_batch]
 
-# Khởi tạo trạng thái phiên làm việc theo từng lô riêng biệt
+# Khởi tạo trạng thái phiên làm việc theo từng Set
 if (
     "current_idx" not in st.session_state
     or "last_batch" not in st.session_state
@@ -442,7 +444,7 @@ if st.session_state.current_idx >= len(vocab_list):
 
 word, definition = vocab_list[st.session_state.current_idx]
 
-# Hiển thị vị trí từ trong lô hiện tại
+# Hiển thị vị trí từ trong Set
 st.caption(
     f"Đang học: **{selected_batch}** | Thẻ từ số:"
     f" **{st.session_state.current_idx + 1} / {len(vocab_list)}**"
@@ -502,7 +504,7 @@ with col3:
     st.session_state.show_def = False
     st.rerun()
 
-# Nút đánh giá mức độ (Chưa thuộc / Đã thuộc) hiện ra ngay sau khi lật nghĩa
+# Nút đánh giá mức độ (Chưa thuộc / Đã thuộc)
 if st.session_state.show_def:
   st.markdown("---")
   st.markdown(
