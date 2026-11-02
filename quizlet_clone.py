@@ -20,9 +20,9 @@ st.markdown(
         background-color: #1e1e2f;
         border: 1px solid #2d2d44;
         border-radius: 12px;
-        padding: 50px 20px;
+        padding: 40px 20px;
         text-align: center;
-        min-height: 300px;
+        min-height: 280px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -39,9 +39,9 @@ st.markdown(
     }
     
     .def-text {
-        font-size: 22px;
+        font-size: 20px;
         color: #29b6f6;
-        line-height: 1.6;
+        line-height: 1.5;
     }
     
     .badge {
@@ -50,7 +50,7 @@ st.markdown(
         padding: 4px 12px;
         border-radius: 6px;
         font-size: 12px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         text-transform: uppercase;
     }
     </style>
@@ -85,7 +85,6 @@ def load_vocab():
     except Exception:
       pass
 
-  # Fallback nếu file trống để không bao giờ sập app
   if not words:
     words = [
         ("ambiguous", "(adj.) open to more than one interpretation."),
@@ -96,7 +95,7 @@ def load_vocab():
 
 all_words = load_vocab()
 
-# Chia tự động thành các phần (mỗi phần đúng 20 từ)
+# Chia tự động thành các phần (mỗi phần 20 từ)
 chunk_size = 20
 batches = {}
 total_sets = math.ceil(len(all_words) / chunk_size)
@@ -107,8 +106,8 @@ for i in range(total_sets):
   set_name = f"Phần {i + 1}: IELTS Vocab ({start_idx + 1}-{end_idx})"
   batches[set_name] = all_words[start_idx:end_idx]
 
-# Giao diện chọn phần học
-top_c1, top_c2 = st.columns([3, 1])
+# Top bar: Chọn phần học & số đếm thẻ
+top_c1, top_c2, top_c3 = st.columns([2.5, 1, 0.8])
 with top_c1:
   selected_batch = st.selectbox(
       "☰ Chọn phần học từ vựng", list(batches.keys()), label_visibility="collapsed"
@@ -130,20 +129,28 @@ with top_c2:
   current_num = st.session_state.current_idx + 1
   total_num = len(vocab_list)
   st.markdown(
-      f"<h3 style='text-align: right; color: #fff; margin-top: 5px;'>{current_num} / {total_num}</h3>",
+      f"<h4 style='text-align: right; color: #fff; margin-top:"
+      f" 8px;'>{current_num} / {total_num}</h4>",
       unsafe_allow_html=True,
   )
+
+with top_c3:
+  # Nút làm lại từ đầu bộ học
+  if st.button("🔄 Làm lại", use_container_width=True):
+    st.session_state.current_idx = 0
+    st.session_state.flipped = False
+    st.rerun()
 
 st.markdown("<hr style='border-color: #2d2d44;'>", unsafe_allow_html=True)
 
 word, definition = vocab_list[st.session_state.current_idx]
 
-# Thẻ flashcard
+# Khu vực thẻ Flashcard
 if not st.session_state.flipped:
   st.markdown(
       f"""
       <div class="desktop-card">
-          <div class="badge">Mới</div>
+          <div class="badge">Từ mới</div>
           <div class="vocab-word">{word}</div>
       </div>
   """,
@@ -155,30 +162,60 @@ else:
       <div class="desktop-card" style="background-color: #161625;">
           <div class="badge" style="background-color: #1f3a60; color: #64b5f6;">Định nghĩa Anh - Anh</div>
           <div class="def-text">{definition}</div>
-          <div style="margin-top: 20px; color: #777; font-size: 14px;">Từ vựng: <b style="color: #fff;">{word}</b></div>
+          <div style="margin-top: 15px; color: #777; font-size: 13px;">Từ vựng: <b style="color: #fff;">{word}</b></div>
       </div>
   """,
       unsafe_allow_html=True,
   )
 
-# Nút lật định nghĩa
+# Điều khiển: Nếu chưa lật thì hiện nút Lật. Nếu đã lật thì hiện 4 nút đánh giá chuẩn Anki/Quizlet[cite: 1, 2]
 if not st.session_state.flipped:
   if st.button("LẬT XEM ĐỊNH NGHĨA", use_container_width=True, type="primary"):
     st.session_state.flipped = True
     st.rerun()
 else:
-  col_prev, col_next = st.columns(2)
-  with col_prev:
-    if st.button("⬅️ Từ trước", use_container_width=True):
-      st.session_state.current_idx = (
-          st.session_state.current_idx - 1
-      ) % total_num
-      st.session_state.flipped = False
-      st.rerun()
-  with col_next:
-    if st.button("Từ tiếp ➡️", use_container_width=True):
+  c1, c2, c3, c4 = st.columns(4)
+
+  with c1:
+    if st.button("Xem lại", use_container_width=True):
       st.session_state.current_idx = (
           st.session_state.current_idx + 1
       ) % total_num
       st.session_state.flipped = False
       st.rerun()
+  with c2:
+    if st.button("Khó", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx + 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+  with c3:
+    if st.button("Ổn", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx + 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+  with c4:
+    if st.button("Dễ", use_container_width=True):
+      st.session_state.current_idx = (
+          st.session_state.current_idx + 1
+      ) % total_num
+      st.session_state.flipped = False
+      st.rerun()
+
+  # Gợi ý thời gian ôn tập dưới các nút[cite: 1, 2]
+  st.markdown(
+      """
+      <table style="width: 100%; text-align: center; color: #888; font-size: 11px; margin-top: 5px;">
+          <tr>
+              <td>Tối đa 1 phút</td>
+              <td>Tối đa 5 phút</td>
+              <td>Tối đa 10 phút</td>
+              <td>4 ngày</td>
+          </tr>
+      </table>
+  """,
+      unsafe_allow_html=True,
+  )
