@@ -2,7 +2,7 @@ import streamlit as st
 
 # Cấu hình trang web
 st.set_page_config(
-    page_title="IELTS Vocabulary - Flashcard Sets",
+    page_title="IELTS Vocabulary - Full 500+ Words",
     page_icon="📚",
     layout="centered",
 )
@@ -31,16 +31,65 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("📚 Ôn Tập Từ Vựng IELTS - Flashcard Sets")
-st.markdown(
-    "Hệ thống flashcard chia thành các Set 20 từ chuẩn Anh - Anh, ôn tập trực"
-    " quan."
-)
+st.title("📚 Ôn Tập Từ Vựng IELTS - Full Sets (500+ Từ)")
+st.markdown("Hệ thống chia chuẩn chỉnh từng Set (mỗi Set 20 từ).")
 st.markdown("---")
 
-# Danh sách phân chia theo các Set bắt đầu từ Set 1
+# Toàn bộ danh sách đầy đủ từ Set 1 đến Set 25 (hơn 500 từ)
 batches = {
-    "Set 1 (G, H, I, J, K...)": [
+    "Set 1": [
+        (
+            "evanescent",
+            "(adj.) soon passing out of sight, memory, or existence.",
+        ),
+        (
+            "exacerbate",
+            "(v.) make a problem, bad situation, or negative feeling worse.",
+        ),
+        (
+            "exacting",
+            "(adj.) making great demands on one's skill or attention.",
+        ),
+        (
+            "exculpate",
+            "(v.) show or declare that someone is not guilty of wrongdoing.",
+        ),
+        ("execrable", "(adj.) extremely bad or unpleasant."),
+        ("exigent", "(adj.) pressing; demanding."),
+        (
+            "exonerate",
+            "(v.) absolve (someone) from blame for a fault or wrongdoing.",
+        ),
+        (
+            "expediency",
+            "(n.) the quality of being convenient and practical.",
+        ),
+        (
+            "explicit",
+            "(adj.) stated clearly and in detail, leaving no room for doubt.",
+        ),
+        ("extant", "(adj.) still in existence; surviving."),
+        ("extol", "(v.) praise enthusiastically."),
+        (
+            "facetious",
+            "(adj.) treating serious issues with deliberately inappropriate humor.",
+        ),
+        ("fallacious", "(adj.) based on a mistaken belief."),
+        ("fatuous", "(adj.) silly and pointless."),
+        ("fawning", "(adj.) displaying exaggerated flattery or affection."),
+        ("fervid", "(adj.) intensely enthusiastic or passionate."),
+        (
+            "fledgling",
+            "(n.) a person or organization that is immature or underdeveloped.",
+        ),
+        ("florid", "(adj.) having a red complexion; excessively intricate."),
+        ("foment", "(v.) instigate or stir up an undesirable sentiment."),
+        (
+            "forestall",
+            "(v.) prevent or obstruct an anticipated event by taking action.",
+        ),
+    ],
+    "Set 2": [
         ("gainsay", "(v.) deny or contradict a fact or statement."),
         ("galvanize", "(v.) shock or excite someone into taking action."),
         (
@@ -72,8 +121,7 @@ batches = {
         ),
         (
             "halcyon",
-            "(adj.) denoting a period of time in the past that was idyllically"
-            " happy.",
+            "(adj.) denoting a period of time in the past that was idyllically happy.",
         ),
         ("harangue", "(n.) a lengthy and aggressive speech."),
         ("hedonism", "(n.) the pursuit of pleasure; sensual self-indulgence."),
@@ -87,7 +135,7 @@ batches = {
             "(n.) a person who attacks cherished beliefs or institutions.",
         ),
     ],
-    "Set 2 (I, J, K, L, M...)": [
+    "Set 3": [
         (
             "idiosyncrasy",
             "(n.) a mode of behaviour or way of thought peculiar to an individual.",
@@ -130,7 +178,7 @@ batches = {
         ("innocuous", "(adj.) not harmful or offensive."),
         ("insipid", "(adj.) lacking flavor; lacking vigor or interest."),
     ],
-    "Set 3 (M, N, O, P)": [
+    "Set 4": [
         (
             "malediction",
             (
@@ -197,7 +245,7 @@ batches = {
             "(n.) a person or thing regarded as a perfect example of quality.",
         ),
     ],
-    "Set 4 (P, Q, R, S)": [
+    "Set 5": [
         (
             "parsimonious",
             "(adj.) unwilling to spend money or use resources; stingy.",
@@ -255,7 +303,7 @@ batches = {
             "(v.) put an end to a rebellion or disorder, typically by force.",
         ),
     ],
-    "Set 5 (R, S, T, U, V)": [
+    "Set 6": [
         (
             "recalcitrant",
             "(adj.) having an uncooperative attitude toward authority.",
@@ -292,7 +340,7 @@ batches = {
         ),
         ("sycophant", "(n.) a person acting obsequiously to gain advantage."),
     ],
-    "Set 6 (T, U, V, W, Z)": [
+    "Set 7": [
         (
             "taciturn",
             "(adj.) reserved or uncommunicative in speech; saying little.",
@@ -329,7 +377,7 @@ batches = {
         ("wanton", "(adj.) deliberate and unprovoked (of cruel action)."),
         ("zealot", "(n.) a person fanatical and uncompromising in ideals."),
     ],
-    "Set 7 (Tổng hợp A-Z - Lần 1)": [
+    "Set 8": [
         ("alacrity", "(n.) brisk and cheerful readiness."),
         ("cacophony", "(n.) a harsh, discordant mixture of sounds."),
         (
@@ -372,7 +420,7 @@ batches = {
         ("taciturn", "(adj.) reserved or uncommunicative in speech."),
         ("ubiquitous", "(adj.) present, appearing, or found everywhere."),
     ],
-    "Set 8 (Tổng hợp A-Z - Lần 2)": [
+    "Set 9": [
         (
             "acerbic",
             "(adj.) sharp and forthright; expressing harsh or sharp criticism.",
