@@ -1,5 +1,6 @@
 import math
 import os
+import random
 import streamlit as st
 
 # Cấu hình giao diện tối màu chuẩn app desktop
@@ -95,7 +96,7 @@ def load_vocab():
 
 all_words = load_vocab()
 
-# Chia tự động thành các phần (mỗi phần 20 từ)
+# Chia tự động thành các phần (mỗi phần 20 từ) và thêm chế độ thi thử Random 20 từ
 chunk_size = 20
 batches = {}
 total_sets = math.ceil(len(all_words) / chunk_size)
@@ -105,6 +106,12 @@ for i in range(total_sets):
   end_idx = min((i + 1) * chunk_size, len(all_words))
   set_name = f"Phần {i + 1}: IELTS Vocab ({start_idx + 1}-{end_idx})"
   batches[set_name] = all_words[start_idx:end_idx]
+
+# Thêm mục thi thử random 20 từ từ toàn bộ kho
+if len(all_words) >= 20:
+  batches["🎯 Thi thử Random 20 từ"] = random.sample(all_words, 20)
+else:
+  batches["🎯 Thi thử Random 20 từ"] = all_words
 
 # Top bar: Chọn phần học & trạng thái
 top_c1, top_c2 = st.columns([2.5, 1])
@@ -152,7 +159,7 @@ if st.session_state.show_summary:
       unsafe_allow_html=True,
   )
   st.markdown(
-      f"<p style='text-align: center; color: #aaa;'>Phần học: <b>{selected_batch}</b></p>",
+      f"<p style='text-align: center; color: #aaa;'>Chế độ: <b>{selected_batch}</b></p>",
       unsafe_allow_html=True,
   )
 
@@ -188,7 +195,7 @@ if st.session_state.show_summary:
       unsafe_allow_html=True,
   )
 
-  st.markdown("### 📝 Chi tiết các từ đã học:")
+  st.markdown("### 📝 Chi tiết bài kiểm tra:")
   for idx, (w, d) in enumerate(vocab_list):
     status = st.session_state.history.get(w, "Bỏ qua")
     color_map = {
@@ -217,7 +224,10 @@ if st.session_state.show_summary:
   st.markdown("<br>", unsafe_allow_html=True)
   col_sum1, col_sum2 = st.columns(2)
   with col_sum1:
-    if st.button("🔄 Học lại từ đầu phần này", use_container_width=True):
+    if st.button("🔄 Thi lại đề mới / Học lại", use_container_width=True):
+      # Nếu đang ở chế độ thi thử, bấm học lại sẽ tạo bộ random 20 từ mới hoàn toàn
+      if "Thi thử" in selected_batch and len(all_words) >= 20:
+        batches["🎯 Thi thử Random 20 từ"] = random.sample(all_words, 20)
       st.session_state.current_idx = 0
       st.session_state.flipped = False
       st.session_state.history = {}
@@ -237,7 +247,7 @@ else:
     st.markdown(
         f"""
         <div class="desktop-card">
-            <div class="badge">Từ mới</div>
+            <div class="badge">Từ kiểm tra</div>
             <div class="vocab-word">{word}</div>
             {f'<div style="margin-top: 15px; color: #29b6f6; font-size: 13px;">Đã đánh giá: <b>{current_status}</b></div>' if current_status else ''}
         </div>
@@ -300,7 +310,7 @@ else:
 
     def save_rating(level):
       st.session_state.history[word] = level
-      st.rerun()  # Chỉ lưu lại và reload tại chỗ, KHÔNG tự động chuyển bài
+      st.rerun()
 
 
     c1, c2, c3, c4 = st.columns(4)
@@ -336,7 +346,6 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Các nút điều hướng khi đã lật thẻ
     sub_c1, sub_c2, sub_c3 = st.columns(3)
     with sub_c1:
       if st.button("⬅️ Từ trước", use_container_width=True):
