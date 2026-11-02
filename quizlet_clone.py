@@ -175,7 +175,6 @@ if st.session_state.show_summary:
 
   final_score = round(total_score / len(vocab_list), 1)
 
-  # Hiển thị điểm số nổi bật
   st.markdown(
       f"""
       <div style="background-color: #1e1e2f; border: 2px solid #29b6f6; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 25px;">
@@ -189,7 +188,6 @@ if st.session_state.show_summary:
       unsafe_allow_html=True,
   )
 
-  # Danh sách chi tiết từng từ
   st.markdown("### 📝 Chi tiết các từ đã học:")
   for idx, (w, d) in enumerate(vocab_list):
     status = st.session_state.history.get(w, "Bỏ qua")
@@ -233,6 +231,7 @@ if st.session_state.show_summary:
 else:
   # GIAO DIỆN HỌC THÔNG THƯỜNG
   word, definition = vocab_list[st.session_state.current_idx]
+  current_status = st.session_state.history.get(word, None)
 
   if not st.session_state.flipped:
     st.markdown(
@@ -240,6 +239,7 @@ else:
         <div class="desktop-card">
             <div class="badge">Từ mới</div>
             <div class="vocab-word">{word}</div>
+            {f'<div style="margin-top: 15px; color: #29b6f6; font-size: 13px;">Đã đánh giá: <b>{current_status}</b></div>' if current_status else ''}
         </div>
     """,
         unsafe_allow_html=True,
@@ -250,7 +250,7 @@ else:
         <div class="desktop-card" style="background-color: #161625;">
             <div class="badge" style="background-color: #1f3a60; color: #64b5f6;">Định nghĩa Anh - Anh</div>
             <div class="def-text">{definition}</div>
-            <div style="margin-top: 15px; color: #777; font-size: 13px;">Từ vựng: <b style="color: #fff;">{word}</b></div>
+            <div style="margin-top: 15px; color: #777; font-size: 13px;">Từ vựng: <b style="color: #fff;">{word}</b> {f'| Đánh giá hiện tại: <b style="color: #29b6f6;">{current_status}</b>' if current_status else ''}</div>
         </div>
     """,
         unsafe_allow_html=True,
@@ -286,39 +286,36 @@ else:
       if st.button("⬅️ Từ trước", use_container_width=True):
         go_prev()
     with nav_c2:
-      if st.button("Từ tiếp ➡️ (Bỏ qua)", use_container_width=True):
+      if st.button("Bỏ qua ➡️", use_container_width=True):
+        st.session_state.history[word] = "Bỏ qua"
         go_next()
   else:
     st.markdown(
         "<p style='text-align: center; color: #aaa; font-size: 14px; margin-bottom:"
-        " 5px;'>Đánh giá mức độ ghi nhớ của từ này:</p>",
+        " 5px;'>Đánh giá mức độ ghi nhớ của từ này (chọn xong có thể bấm nút"
+        " 'Từ tiếp theo'):</p>",
         unsafe_allow_html=True,
     )
 
 
-    def save_and_next(level):
+    def save_rating(level):
       st.session_state.history[word] = level
-      if st.session_state.current_idx < total_num - 1:
-        st.session_state.current_idx += 1
-        st.session_state.flipped = False
-      else:
-        st.session_state.show_summary = True
-      st.rerun()
+      st.rerun()  # Chỉ lưu lại và reload tại chỗ, KHÔNG tự động chuyển bài
 
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
       if st.button("Xem lại", use_container_width=True):
-        save_and_next("Xem lại")
+        save_rating("Xem lại")
     with c2:
       if st.button("Khó", use_container_width=True):
-        save_and_next("Khó")
+        save_rating("Khó")
     with c3:
       if st.button("Ổn", use_container_width=True):
-        save_and_next("Ổn")
+        save_rating("Ổn")
     with c4:
       if st.button("Dễ", use_container_width=True):
-        save_and_next("Dễ")
+        save_rating("Dễ")
 
     st.markdown(
         """
@@ -337,11 +334,17 @@ else:
         unsafe_allow_html=True,
     )
 
-    sub_c1, sub_c2 = st.columns(2)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Các nút điều hướng khi đã lật thẻ
+    sub_c1, sub_c2, sub_c3 = st.columns(3)
     with sub_c1:
       if st.button("⬅️ Từ trước", use_container_width=True):
         go_prev()
     with sub_c2:
-      if st.button("📊 Xem tổng kết điểm", use_container_width=True):
+      if st.button("Từ tiếp theo ➡️", use_container_width=True, type="primary"):
+        go_next()
+    with sub_c3:
+      if st.button("📊 Xem tổng kết", use_container_width=True):
         st.session_state.show_summary = True
         st.rerun()
