@@ -123,7 +123,7 @@ with top_c2:
     st.session_state.current_idx = 0
     st.session_state.last_batch = selected_batch
     st.session_state.flipped = False
-    st.session_state.history = {}  # Lưu trạng thái đánh giá của từng từ
+    st.session_state.history = {}
     st.session_state.show_summary = False
 
   current_num = st.session_state.current_idx + 1
@@ -144,11 +144,11 @@ with top_c2:
 
 st.markdown("<hr style='border-color: #2d2d44;'>", unsafe_allow_html=True)
 
-# KIỂM TRA TRẠNG THÁI HIỂN THỊ BẢNG TỔNG KẾT
+# GIAO DIỆN TỔNG KẾT & TÍNH ĐIỂM
 if st.session_state.show_summary:
   st.markdown(
       "<h2 style='text-align: center; color: #29b6f6;'>📊 Bảng Tổng Kết Kết"
-      " Quả Ôn Tập</h2>",
+      " Quả & Điểm Số</h2>",
       unsafe_allow_html=True,
   )
   st.markdown(
@@ -156,38 +156,65 @@ if st.session_state.show_summary:
       unsafe_allow_html=True,
   )
 
-  # Tự động gán nhãn "Bỏ qua" cho các từ chưa được đánh giá trước khi hiện tổng kết
+  # Tự động gán nhãn "Bỏ qua" cho các từ chưa đánh giá
   for w, _ in vocab_list:
     if w not in st.session_state.history:
       st.session_state.history[w] = "Bỏ qua"
 
-  # Hiển thị danh sách chi tiết từng từ
-  if st.session_state.history:
-    st.markdown("---")
-    for idx, (w, d) in enumerate(vocab_list):
-      status = st.session_state.history.get(w, "Bỏ qua")
-      color_map = {
-          "Xem lại": "#ff4d4d",
-          "Khó": "#ffa500",
-          "Ổn": "#29b6f6",
-          "Dễ": "#4CAF50",
-          "Bỏ qua": "#777777",
-      }
-      badge_color = color_map.get(status, "#777")
-      st.markdown(
-          f"""
-            <div style="background-color: #1e1e2f; padding: 12px 18px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2d2d44;">
-                <div>
-                    <span style="font-size: 16px; font-weight: bold; color: #fff;">{idx + 1}. {w}</span>
-                    <div style="font-size: 13px; color: #888;">{d}</div>
-                </div>
-                <div>
-                    <span style="background-color: {badge_color}; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">{status}</span>
-                </div>
+  # Tính điểm theo thang điểm 10
+  score_map = {"Dễ": 10.0, "Ổn": 8.0, "Khó": 5.0, "Xem lại": 2.0, "Bỏ qua": 0.0}
+
+  total_score = 0
+  counts = {"Dễ": 0, "Ổn": 0, "Khó": 0, "Xem lại": 0, "Bỏ qua": 0}
+
+  for w, _ in vocab_list:
+    status = st.session_state.history.get(w, "Bỏ qua")
+    total_score += score_map.get(status, 0.0)
+    if status in counts:
+      counts[status] += 1
+
+  final_score = round(total_score / len(vocab_list), 1)
+
+  # Hiển thị điểm số nổi bật
+  st.markdown(
+      f"""
+      <div style="background-color: #1e1e2f; border: 2px solid #29b6f6; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 25px;">
+          <div style="font-size: 16px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">Điểm số đánh giá năng lực</div>
+          <div style="font-size: 54px; font-weight: bold; color: #29b6f6; margin: 10px 0;">{final_score} <span style="font-size: 24px; color: #888;">/ 10</span></div>
+          <div style="font-size: 14px; color: #ddd;">
+              🟢 Dễ: <b>{counts['Dễ']}</b> | 🔵 Ổn: <b>{counts['Ổn']}</b> | 🟠 Khó: <b>{counts['Khó']}</b> | 🔴 Xem lại: <b>{counts['Xem lại']}</b> | ⚫ Bỏ qua: <b>{counts['Bỏ qua']}</b>
+          </div>
+      </div>
+  """,
+      unsafe_allow_html=True,
+  )
+
+  # Danh sách chi tiết từng từ
+  st.markdown("### 📝 Chi tiết các từ đã học:")
+  for idx, (w, d) in enumerate(vocab_list):
+    status = st.session_state.history.get(w, "Bỏ qua")
+    color_map = {
+        "Xem lại": "#ff4d4d",
+        "Khó": "#ffa500",
+        "Ổn": "#29b6f6",
+        "Dễ": "#4CAF50",
+        "Bỏ qua": "#777777",
+    }
+    badge_color = color_map.get(status, "#777")
+    st.markdown(
+        f"""
+        <div style="background-color: #1e1e2f; padding: 12px 18px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2d2d44;">
+            <div>
+                <span style="font-size: 16px; font-weight: bold; color: #fff;">{idx + 1}. {w}</span>
+                <div style="font-size: 13px; color: #888;">{d}</div>
             </div>
-        """,
-          unsafe_allow_html=True,
-      )
+            <div>
+                <span style="background-color: {badge_color}; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">{status}</span>
+            </div>
+        </div>
+    """,
+        unsafe_allow_html=True,
+    )
 
   st.markdown("<br>", unsafe_allow_html=True)
   col_sum1, col_sum2 = st.columns(2)
@@ -231,7 +258,6 @@ else:
 
 
   def go_next():
-    # Nếu chuyển đi mà chưa đánh giá -> ghi nhận là "Bỏ qua"
     if word not in st.session_state.history:
       st.session_state.history[word] = "Bỏ qua"
 
